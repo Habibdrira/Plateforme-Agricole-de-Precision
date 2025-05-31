@@ -1,5 +1,6 @@
 package com.agriculture.agricoleprecision.model;
 
+import com.agriculture.agricoleprecision.enums.Role;
 import jakarta.persistence.*;
 import java.util.Set;
 
@@ -17,15 +18,25 @@ public class Utilisateur {
     @Column(nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String role;  // Ex : "ADMIN", "AGRICULTEUR"
+    private Role role;  // ADMIN, AGRICULTEUR, etc.
 
-    // Relation : un utilisateur peut avoir plusieurs parcelles
-    @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Parcelle> parcelles;
 
-    // Getters et setters
+    // Constructeur sans arguments requis par JPA
+    public Utilisateur() {
+    }
 
+    // Constructeur pratique (optionnel)
+    public Utilisateur(String username, String password, Role role) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+    }
+
+    // Getters et setters
     public Long getId() {
         return id;
     }
@@ -44,10 +55,10 @@ public class Utilisateur {
     public void setPassword(String password) {
         this.password = password;
     }
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
     public Set<Parcelle> getParcelles() {
@@ -55,5 +66,14 @@ public class Utilisateur {
     }
     public void setParcelles(Set<Parcelle> parcelles) {
         this.parcelles = parcelles;
+    }
+
+    @Override
+    public String toString() {
+        return "Utilisateur{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", role=" + role +
+                '}';
     }
 }
