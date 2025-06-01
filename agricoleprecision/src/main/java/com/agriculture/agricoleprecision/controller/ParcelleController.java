@@ -1,8 +1,10 @@
 package com.agriculture.agricoleprecision.controller;
 
 import com.agriculture.agricoleprecision.model.Parcelle;
-import com.agriculture.agricoleprecision.service.ParcelleService;
-import org.springframework.http.ResponseEntity;
+import com.agriculture.agricoleprecision.repository.ParcelleRepository;
+import com.agriculture.agricoleprecision.repository.UtilisateurRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,50 +12,51 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/parcelles")
+@CrossOrigin(origins = "*") // pour autoriser les requêtes depuis un frontend
 public class ParcelleController {
 
-    private final ParcelleService parcelleService;
+    @Autowired
+    private ParcelleRepository parcelleRepository;
 
-    public ParcelleController(ParcelleService parcelleService) {
-        this.parcelleService = parcelleService;
-    }
+    @Autowired
+    private UtilisateurRepository utilisateurRepository;
 
+    // ✅ Récupérer toutes les parcelles (pour l'admin)
     @GetMapping
     public List<Parcelle> getAllParcelles() {
-        return parcelleService.findAll();
+        return parcelleRepository.findAll();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Parcelle> getParcelleById(@PathVariable Long id) {
-        Optional<Parcelle> parcelle = parcelleService.findById(id);
-        return parcelle.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    // ✅ Récupérer les parcelles d'un utilisateur
+    @GetMapping("/user/{userId}")
+    public List<Parcelle> getParcellesByUser(@PathVariable Long userId) {
+        return parcelleRepository.findByUtilisateurId(userId);
     }
 
-    @GetMapping("/utilisateur/{utilisateurId}")
-    public List<Parcelle> getParcellesByUtilisateur(@PathVariable Long utilisateurId) {
-        return parcelleService.findByUtilisateurId(utilisateurId);
-    }
-
+    // ✅ Créer une parcelle
     @PostMapping
     public Parcelle createParcelle(@RequestBody Parcelle parcelle) {
-        return parcelleService.save(parcelle);
+        return parcelleRepository.save(parcelle);
     }
 
+    // ✅ Mettre à jour une parcelle
     @PutMapping("/{id}")
-    public ResponseEntity<Parcelle> updateParcelle(@PathVariable Long id, @RequestBody Parcelle parcelleDetails) {
-        Optional<Parcelle> updated = parcelleService.update(id, parcelleDetails);
-        return updated.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public Parcelle updateParcelle(@PathVariable Long id, @RequestBody Parcelle parcelleDetails) {
+        Parcelle parcelle = parcelleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Parcelle non trouvée"));
+
+        parcelle.setNom(parcelleDetails.getNom());
+        parcelle.setLocalisation(parcelleDetails.getLocalisation());
+        parcelle.setSurface(parcelleDetails.getSurface());
+        parcelle.setTypeSol(parcelleDetails.getTypeSol());
+        parcelle.setUtilisateur(parcelleDetails.getUtilisateur());
+
+        return parcelleRepository.save(parcelle);
     }
 
+    // ✅ Supprimer une parcelle
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteParcelle(@PathVariable Long id) {
-        boolean deleted = parcelleService.delete(id);
-        if (deleted) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public void deleteParcelle(@PathVariable Long id) {
+        parcelleRepository.deleteById(id);
     }
 }
