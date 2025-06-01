@@ -1,62 +1,113 @@
 package com.agriculture.agricoleprecision.controller;
 
+import com.agriculture.agricoleprecision.enums.Role;
 import com.agriculture.agricoleprecision.model.Parcelle;
-import com.agriculture.agricoleprecision.repository.ParcelleRepository;
-import com.agriculture.agricoleprecision.repository.UtilisateurRepository;
-
+import com.agriculture.agricoleprecision.model.Utilisateur;
+import com.agriculture.agricoleprecision.service.ParcelleService;
+import com.agriculture.agricoleprecision.service.UtilisateurService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Optional;
 
-@RestController
-@RequestMapping("/api/parcelles")
-@CrossOrigin(origins = "*") // pour autoriser les requêtes depuis un frontend
+@Controller
+@RequestMapping({"/admin/parcelles", "/agriculteur/parcelles"})
 public class ParcelleController {
 
     @Autowired
-    private ParcelleRepository parcelleRepository;
+    private ParcelleService parcelleService;
 
     @Autowired
-    private UtilisateurRepository utilisateurRepository;
+    private UtilisateurService utilisateurService;
 
-    // ✅ Récupérer toutes les parcelles (pour l'admin)
     @GetMapping
-    public List<Parcelle> getAllParcelles() {
-        return parcelleRepository.findAll();
+    public String listParcelles(Model model, HttpSession session) {
+        Utilisateur user = (Utilisateur) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        if (user.getRole() == Role.ADMIN) {
+            model.addAttribute("parcelles", parcelleService.findAll());
+            model.addAttribute("isAdmin", true);
+            return "parcelle_list";
+        } else if (user.getRole() == Role.AGRICULTEUR) {
+            model.addAttribute("parcelles", parcelleService.findByUtilisateurId(user.getId()));
+            model.addAttribute("isAdmin", false);
+            return "parcelle_list";
+        }
+        return "redirect:/login";
     }
 
-    // ✅ Récupérer les parcelles d'un utilisateur
-    @GetMapping("/user/{userId}")
-    public List<Parcelle> getParcellesByUser(@PathVariable Long userId) {
-        return parcelleRepository.findByUtilisateurId(userId);
+    @GetMapping("/create")
+    public String showCreateForm(Model model, HttpSession session) {
+        Utilisateur user = (Utilisateur) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        model.addAttribute("parcelle", new Parcelle());
+        if (user.getRole() == Role.ADMIN) {
+            model.addAttribute("users", utilisateurService.findAll());
+            model.addAttribute("isAdmin", true);
+        } else {
+            model.addAttribute("users", List.of(user));
+            model.addAttribute("isAdmin", false);
+        }
+        return "parcelle_form";
     }
 
-    // ✅ Créer une parcelle
-    @PostMapping
-    public Parcelle createParcelle(@RequestBody Parcelle parcelle) {
-        return parcelleRepository.save(parcelle);
+    @PostMapping("/create")
+    public String createParcelle(@RequestParam String nom, @RequestParam String localisation,
+                                 @RequestParam double surface, @RequestParam String typeSol,
+                                 @RequestParam Long utilisateurId, HttpSession session) {
+        Utilisateur user = (Utilisateur) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        if (user.getRole() == Role.AGRICULTEUR && !user.getId().equals(utilisateurId)) {
+            return "redirect:/agriculteur/parcelles";
+        }
+        parcelleService.createParcelle(nom, localisation, surface, typeSol, utilisateurId);
+        return user.getRole() == Role.ADMIN ? "redirect:/admin/parcelles" : "redirect:/agriculteur/parcelles";
     }
 
-    // ✅ Mettre à jour une parcelle
-    @PutMapping("/{id}")
-    public Parcelle updateParcelle(@PathVariable Long id, @RequestBody Parcelle parcelleDetails) {
-        Parcelle parcelle = parcelleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Parcelle non trouvée"));
-
-        parcelle.setNom(parcelleDetails.getNom());
-        parcelle.setLocalisation(parcelleDetails.getLocalisation());
-        parcelle.setSurface(parcelleDetails.getSurface());
-        parcelle.setTypeSol(parcelleDetails.getTypeSol());
-        parcelle.setUtilisateur(parcelleDetails.getUtilisateur());
-
-        return parcelleRepository.save(parcelle);
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model, HttpSession session) {
+        Utilisateur user = (Utilisateur) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        Parcelle parcelle = parcelleService.findById(id).orElseThrow();
+        if (user.getRole() == Role.AGRICULTEUR && !parcelle.getUtilisateur().getId().equals(user.getId())) {
+            return "redirect:/agriculteur/parcelles";
+        }
+        model.addAttribute("parcelle", parcelle);
+        if (user.getRole() == Role.ADMIN) {
+            model.addAttribute("users", utilisateurService.findAll());
+            model.addAttribute("isAdmin", true);
+        } else {
+            model.addAttribute("users", List.of(user));
+            model.addAttribute("isAdmin", false);
+        }
+        return "parcelle_form";
     }
 
-    // ✅ Supprimer une parcelle
-    @DeleteMapping("/{id}")
-    public void deleteParcelle(@PathVariable Long id) {
-        parcelleRepository.deleteById(id);
+    @PostMapping("/edit/{id}")
+    public String updateParcelle(@PathVariable Long id, @RequestParam String nom,
+                                 @RequestParam String localisation, @RequestParam double surface,
+                                 @RequestParam String typeSol, @RequestParam Long utilisateurId,
+                                 HttpSession session) {
+        Utilisateur user = (Utilisateur) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        if (user.getRole() == Role.AGRICULTEUR && !user.getId().equals(utilisateurId)) {
+            return "redirect:/agriculteur/parcelles";
+        }
+        parcelleService.updateParcelle(id, nom, localisation, surface, typeSol, utilisateurId);
+        return user.getRole() == Role.ADMIN ? "redirect:/admin/parcelles" : "redirect:/agriculteur/parcelles";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String deleteParcelle(@PathVariable Long id, HttpSession session) {
+        Utilisateur user = (Utilisateur) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        Parcelle parcelle = parcelleService.findById(id).orElseThrow();
+        if (user.getRole() == Role.AGRICULTEUR && !parcelle.getUtilisateur().getId().equals(user.getId())) {
+            return "redirect:/agriculteur/parcelles";
+        }
+        parcelleService.deleteById(id);
+        return user.getRole() == Role.ADMIN ? "redirect:/admin/parcelles" : "redirect:/agriculteur/parcelles";
     }
 }

@@ -2,7 +2,6 @@ package com.agriculture.agricoleprecision.soap;
 
 import com.agriculture.agricoleprecision.model.Utilisateur;
 import com.agriculture.agricoleprecision.repository.UtilisateurRepository;
-import jakarta.xml.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +9,9 @@ import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
+
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @Endpoint
 public class AuthEndpoint {
@@ -53,35 +55,39 @@ public class AuthEndpoint {
 }
 
 @XmlRootElement(namespace = "http://agriculture.com/auth", name = "AuthRequest")
-@XmlAccessorType(XmlAccessType.FIELD)
 class AuthRequest {
     private String username;
     private String password;
 
+    @XmlElement
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 
+    @XmlElement
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 }
 
 @XmlRootElement(namespace = "http://agriculture.com/auth", name = "AuthResponse")
-@XmlAccessorType(XmlAccessType.FIELD)
 class AuthResponse {
     private boolean success;
     private String username;
     private String role;
     private String message;
 
+    @XmlElement
     public boolean isSuccess() { return success; }
     public void setSuccess(boolean success) { this.success = success; }
 
+    @XmlElement
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 
+    @XmlElement
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
 
+    @XmlElement
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
 }

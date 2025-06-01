@@ -37,64 +37,16 @@ public class Parcelle {
         this.utilisateur = utilisateur;
     }
 
-    // Getters et setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-    public String getLocalisation() {
-        return localisation;
-    }
-
-    public void setLocalisation(String localisation) {
-        this.localisation = localisation;
-    }
-
-    public double getSurface() {
-        return surface;
-    }
-
-    public void setSurface(double surface) {
-        this.surface = surface;
-    }
-
-    public String getTypeSol() {
-        return typeSol;
-    }
-
-    public void setTypeSol(String typeSol) {
-        this.typeSol = typeSol;
-    }
-
-    public Utilisateur getUtilisateur() {
-        return utilisateur;
-    }
-
-    public void setUtilisateur(Utilisateur utilisateur) {
-        this.utilisateur = utilisateur;
-    }
-
-    @Override
-    public String toString() {
-        return "Parcelle{" +
-                "id=" + id +
-                ", nom='" + nom + '\'' +
-                ", localisation='" + localisation + '\'' +
-                ", surface=" + surface +
-                ", typeSol='" + typeSol + '\'' +
-                ", utilisateur=" + utilisateur.getUsername() +
-                '}';
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getNom() { return nom; }
+    public void setNom(String nom) { this.nom = nom; }
+    public String getLocalisation() { return localisation; }
+    public void setLocalisation(String localisation) { this.localisation = localisation; }
+    public double getSurface() { return surface; }
+    public void setSurface(double surface) { this.surface = surface; }
+    public String getTypeSol() { return typeSol; }
+    public void setTypeSol(String typeSol) { this.typeSol = typeSol; }
+    public Utilisateur getUtilisateur() { return utilisateur; }
+    public void setUtilisateur(Utilisateur utilisateur) { this.utilisateur = utilisateur; }
 }

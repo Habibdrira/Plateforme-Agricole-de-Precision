@@ -1,54 +1,71 @@
 package com.agriculture.agricoleprecision.controller;
 
+import com.agriculture.agricoleprecision.enums.Role;
 import com.agriculture.agricoleprecision.model.Utilisateur;
 import com.agriculture.agricoleprecision.service.UtilisateurService;
-import org.springframework.http.ResponseEntity;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-
-@RestController
-@RequestMapping("/api/utilisateurs")
+@Controller
+@RequestMapping("/admin/users")
 public class UtilisateurController {
 
-    private final UtilisateurService utilisateurService;
-
-    public UtilisateurController(UtilisateurService utilisateurService) {
-        this.utilisateurService = utilisateurService;
-    }
+    @Autowired
+    private UtilisateurService utilisateurService;
 
     @GetMapping
-    public List<Utilisateur> getAllUtilisateurs() {
-        return utilisateurService.findAll();
+    public String listUsers(Model model, HttpSession session) {
+        if (!isAdmin(session)) return "redirect:/login";
+        model.addAttribute("users", utilisateurService.findAll());
+        return "user_list";
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Utilisateur> getUtilisateurById(@PathVariable Long id) {
-        Optional<Utilisateur> utilisateur = utilisateurService.findById(id);
-        return utilisateur.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/create")
+    public String showCreateForm(Model model, HttpSession session) {
+        if (!isAdmin(session)) return "redirect:/login";
+        model.addAttribute("utilisateur", new Utilisateur());
+        model.addAttribute("roles", Role.values());
+        return "user_form";
     }
 
-    @PostMapping
-    public Utilisateur createUtilisateur(@RequestBody Utilisateur utilisateur) {
-        return utilisateurService.save(utilisateur);
+    @PostMapping("/create")
+    public String createUser(@RequestParam String username, @RequestParam String password,
+                             @RequestParam String role, HttpSession session) {
+        if (!isAdmin(session)) return "redirect:/login";
+        utilisateurService.createUtilisateur(username, password, role);
+        return "redirect:/admin/users";
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Utilisateur> updateUtilisateur(@PathVariable Long id, @RequestBody Utilisateur utilisateurDetails) {
-        Optional<Utilisateur> updated = utilisateurService.update(id, utilisateurDetails);
-        return updated.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model, HttpSession session) {
+        if (!isAdmin(session)) return "redirect:/login";
+        Utilisateur utilisateur = utilisateurService.findById(id).orElseThrow();
+        model.addAttribute("utilisateur", utilisateur);
+        model.addAttribute("roles", Role.values());
+        return "user_form";
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUtilisateur(@PathVariable Long id) {
-        boolean deleted = utilisateurService.delete(id);
-        if (deleted) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    @PostMapping("/edit/{id}")
+    public String updateUser(@PathVariable Long id, @RequestParam String username,
+                             @RequestParam String password, @RequestParam String role,
+                             HttpSession session) {
+        if (!isAdmin(session)) return "redirect:/login";
+        utilisateurService.updateUtilisateur(id, username, password, role);
+        return "redirect:/admin/users";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String deleteUser(@PathVariable Long id, HttpSession session) {
+        if (!isAdmin(session)) return "redirect:/login";
+        utilisateurService.deleteById(id);
+        return "redirect:/admin/users";
+    }
+
+    private boolean isAdmin(HttpSession session) {
+        Utilisateur user = (Utilisateur) session.getAttribute("user");
+        return user != null && user.getRole() == Role.ADMIN;
     }
 }

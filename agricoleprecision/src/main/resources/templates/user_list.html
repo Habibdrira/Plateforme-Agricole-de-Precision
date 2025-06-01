@@ -1,0 +1,46 @@
+html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Gestion des Utilisateurs</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { color: #4CAF50; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+        a { color: #007bff; }
+        .btn { padding: 8px 15px; background-color: #4CAF50; color: white; border: none; }
+        .btn-delete { background-color: #f44336; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Gestion des Utilisateurs</h2>
+    <a th:href="@{/admin/users/create}" class="btn">Créer Utilisateur</a>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nom d'utilisateur</th>
+            <th>Rôle</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.id}"></td>
+            <td th:text="${user.username}"></td>
+            <td th:text="${user.role}"></td>
+            <td>
+                <a th:href="@{/admin/users/edit/{id}(id=${user.id})}">Modifier</a> |
+                <a th:href="@{/admin/users/delete/{id}(id=${user.id})}" onclick="return confirm('Supprimer ?')" class="btn-delete">Supprimer</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <a th:href="@{/admin}">Retour</a>
+</div>
+</body>
+</html>

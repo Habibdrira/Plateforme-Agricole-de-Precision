@@ -1,0 +1,47 @@
+html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${parcelle.id} ? 'Modifier Parcelle' : 'Créer Parcelle'"></title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { color: #4CAF50; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 8px; }
+        .btn { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 th:text="${parcelle.id} ? 'Modifier Parcelle' : 'Créer Parcelle'"></h2>
+    <form th:action="@{${isAdmin ? '/admin/parcelles' : '/agriculteur/parcelles'}/${parcelle.id ? 'edit/' + parolle.id : 'create'}}" method="post">
+        <div class="form-group">
+            <label for="nom">Nom:</label>
+            <input type="text" id="nom" name="nom" th:value="${parcelle.nom}" required/>
+        </div>
+        <div class="form-group">
+            <label for="localisation">Localisation:</label>
+            <input type="text" id="localisation" name="localisation" th:value="${parcelle.localisation}" required/>
+        </div>
+        <div class="form-group">
+            <label for="surface">Surface (ha):</label>
+            <input type="number" id="surface" name="surface" step="0.01" th:value="${parcelle.surface}" required/>
+        </div>
+        <div class="form-group">
+            <label for="typeSol">Type de Sol:</label>
+            <input type="text" id="typeSol" name="typeSol" th:value="${parcelle.typeSol}" required/>
+        </div>
+        <div class="form-group">
+            <label for="utilisateurId">Propriétaire:</label>
+            <select id="utilisateurId" name="utilisateurId" th:disabled="${!isAdmin}" required>
+                <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}" th:selected="${parcelle.utilisateur?.id} == ${user.id}"></option>
+            </select>
+        </div>
+        <button type="submit" class="btn">Enregistrer</button>
+    </form>
+    <a th:href="@{${isAdmin ? '/admin/parcelles' : '/agriculteur/parcelles'}}">Retour</a>
+</div>
+</body>
+</html>

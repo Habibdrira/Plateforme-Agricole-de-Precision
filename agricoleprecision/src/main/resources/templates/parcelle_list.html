@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Gestion des Parcelles</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { color: #4CAF50; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+        a { color: #007bff; }
+        .btn { padding: 8px 12px; background-color: #4CAF50; color: white; border: none; }
+        .btn-delete { background-color: #f44336; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Gestion des Parcelles</h2>
+    <a th:if="${isAdmin}" th:href="@{/admin/parcelles/create}" class="btn">Créer Parcelle</a>
+    <a th:if="${!isAdmin}" th:href="@{/agriculteur/parcelles/create}" class="btn">Créer Parcelle</a>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Localisation</th>
+            <th>Surface (ha)</th>
+            <th>Type de Sol</th>
+            <th th:if="${isAdmin}">Propriétaire</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="parcelle : ${parcelles}">
+            <td th:text="${parcelle.id}"></td>
+            <td th:text="${parcelle.nom}"></td>
+            <td th:text="${parcelle.localisation}"></td>
+            <td th:text="${parcelle.surface}"></td>
+            <td th:text="${parcelle.typeSol}"></td>
+            <td th:if="${isAdmin}" th:text="${parcelle.utilisateur.username}"></td>
+            <td>
+                <a th:href="@{${isAdmin ? '/admin/parcelles/edit/{id}' : '/agriculteur/parcelles/edit/{id}'}(id=${parcelle.id})}">Modifier</a> |
+                <a th:href="@{${isAdmin ? '/admin/parcelles/delete/{id}' : '/agriculteur/parcelles/delete/{id}'}(id=${parcelle.id})}"
+                   onclick="return confirm('Supprimer ?')" class="btn-delete">Supprimer</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <a th:href="@{${isAdmin} ? '/admin' : '/agriculteur'}">Retour</a>
+</div>
+</body>
+</html>

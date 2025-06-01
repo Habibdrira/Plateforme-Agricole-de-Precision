@@ -1,7 +1,10 @@
 package com.agriculture.agricoleprecision.service;
 
 import com.agriculture.agricoleprecision.model.Parcelle;
+import com.agriculture.agricoleprecision.model.Utilisateur;
 import com.agriculture.agricoleprecision.repository.ParcelleRepository;
+import com.agriculture.agricoleprecision.repository.UtilisateurRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,11 +13,11 @@ import java.util.Optional;
 @Service
 public class ParcelleService {
 
-    private final ParcelleRepository parcelleRepository;
+    @Autowired
+    private ParcelleRepository parcelleRepository;
 
-    public ParcelleService(ParcelleRepository parcelleRepository) {
-        this.parcelleRepository = parcelleRepository;
-    }
+    @Autowired
+    private UtilisateurRepository utilisateurRepository;
 
     public List<Parcelle> findAll() {
         return parcelleRepository.findAll();
@@ -28,24 +31,28 @@ public class ParcelleService {
         return parcelleRepository.findByUtilisateurId(utilisateurId);
     }
 
-    public Parcelle save(Parcelle parcelle) {
+    public Parcelle createParcelle(String nom, String localisation, double surface, String typeSol, Long utilisateurId) {
+        Utilisateur utilisateur = utilisateurRepository.findById(utilisateurId).orElseThrow();
+        Parcelle parcelle = new Parcelle(nom, localisation, surface, typeSol, utilisateur);
         return parcelleRepository.save(parcelle);
     }
 
-    public Optional<Parcelle> update(Long id, Parcelle parcelleDetails) {
-        return parcelleRepository.findById(id).map(parcelle -> {
-            parcelle.setLocalisation(parcelleDetails.getLocalisation());
-            parcelle.setSurface(parcelleDetails.getSurface());
-            parcelle.setTypeSol(parcelleDetails.getTypeSol());
-            parcelle.setUtilisateur(parcelleDetails.getUtilisateur());
+    public Parcelle updateParcelle(Long id, String nom, String localisation, double surface, String typeSol, Long utilisateurId) {
+        Optional<Parcelle> existing = parcelleRepository.findById(id);
+        if (existing.isPresent()) {
+            Parcelle parcelle = existing.get();
+            parcelle.setNom(nom);
+            parcelle.setLocalisation(localisation);
+            parcelle.setSurface(surface);
+            parcelle.setTypeSol(typeSol);
+            Utilisateur utilisateur = utilisateurRepository.findById(utilisateurId).orElseThrow();
+            parcelle.setUtilisateur(utilisateur);
             return parcelleRepository.save(parcelle);
-        });
+        }
+        return null;
     }
 
-    public boolean delete(Long id) {
-        return parcelleRepository.findById(id).map(parcelle -> {
-            parcelleRepository.delete(parcelle);
-            return true;
-        }).orElse(false);
+    public void deleteById(Long id) {
+        parcelleRepository.deleteById(id);
     }
 }

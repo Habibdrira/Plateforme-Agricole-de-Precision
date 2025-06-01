@@ -10,7 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -21,10 +20,10 @@ public class LoginController {
 
     @GetMapping("/login")
     public String showLoginForm() {
-        return "login";
+        return "index";
     }
 
-    @PostMapping("/login")
+    @PostMapping("/index")
     public String processLogin(@RequestParam String username, @RequestParam String password, Model model, HttpSession session) {
         Utilisateur utilisateur = utilisateurRepository.findByUsername(username).orElse(null);
         if (utilisateur != null && utilisateur.getPassword().equals(password)) {
@@ -32,11 +31,11 @@ public class LoginController {
             if (utilisateur.getRole() == Role.ADMIN) {
                 return "redirect:/admin";
             } else if (utilisateur.getRole() == Role.AGRICULTEUR) {
-                return "redirect:/agriculteur";
+                return "redirect:/";
             }
         }
         model.addAttribute("error", "Nom d'utilisateur ou mot de passe incorrect");
-        return "login";
+        return "index";
     }
 
     @GetMapping("/admin")
@@ -49,21 +48,22 @@ public class LoginController {
             model.addAttribute("lastSoapRole", lastSoapRole != null ? lastSoapRole : "None");
             return "admin";
         }
-        return "redirect:/login";
+        return "redirect:/index";
     }
 
-    @GetMapping("/agriculteur")
-    public String agriculteurPage(HttpSession session) {
+    @GetMapping("/")
+    public String agriculteurPage(HttpSession session, Model model) {
         Utilisateur user = (Utilisateur) session.getAttribute("user");
         if (user != null && user.getRole() == Role.AGRICULTEUR) {
-            return "agriculteur";
+            model.addAttribute("username", user.getUsername());
+            return "dashboard";
         }
-        return "redirect:/login";
+        return "redirect:/index";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/login";
+        return "redirect:/index";
     }
 }

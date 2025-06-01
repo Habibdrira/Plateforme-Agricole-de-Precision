@@ -4,21 +4,20 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.ws.config.annotation.EnableWs;
-import org.springframework.ws.config.annotation.WsConfigurer;
+import org.springframework.ws.config.annotation.WsConfigurerAdapter;
+import org.springframework.ws.server.endpoint.adapter.method.MethodReturnValueHandler;
 import org.springframework.ws.transport.http.MessageDispatcherServlet;
+import org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition;
 import org.springframework.xml.xsd.SimpleXsdSchema;
 import org.springframework.xml.xsd.XsdSchema;
-import org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition;
 
-import java.util.Collections;
+import java.util.List;
 
-
-@EnableWs
 @Configuration
-public class SoapConfig implements WsConfigurer {
-
-
+@EnableWs
+public class SoapConfig extends WsConfigurerAdapter {
 
     @Bean
     public ServletRegistrationBean<MessageDispatcherServlet> messageDispatcherServlet(ApplicationContext applicationContext) {
@@ -30,23 +29,21 @@ public class SoapConfig implements WsConfigurer {
 
     @Bean(name = "auth")
     public DefaultWsdl11Definition defaultWsdl11Definition(XsdSchema authSchema) {
-        DefaultWsdl11Definition definition = new DefaultWsdl11Definition();
-        definition.setPortTypeName("AuthPort");
-        definition.setLocationUri("/ws");
-        definition.setTargetNamespace("http://agriculture.com/auth");
-        definition.setSchema(authSchema);
-        return definition;
+        DefaultWsdl11Definition wsdl = new DefaultWsdl11Definition();
+        wsdl.setPortTypeName("AuthPort");
+        wsdl.setLocationUri("/ws");
+        wsdl.setTargetNamespace("http://agriculture.com/auth");
+        wsdl.setSchema(authSchema);
+        return wsdl;
     }
 
     @Bean
     public XsdSchema authSchema() {
-        return new SimpleXsdSchema(new org.springframework.core.io.ClassPathResource("auth.xsd"));
+        return new SimpleXsdSchema(new ClassPathResource("auth.xsd"));
+    }
+
+    @Override
+    public void addReturnValueHandlers(List<MethodReturnValueHandler> returnValueHandlers) {
+        // Empty implementation as no custom return value handlers are needed
     }
 }
-
-
-
-
-
-
-
