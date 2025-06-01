@@ -1,7 +1,6 @@
 package com.agriculture.agricoleprecision.model;
 
 import jakarta.persistence.*;
-import java.util.Set;
 
 @Entity
 @Table(name = "parcelle")
@@ -11,69 +10,91 @@ public class Parcelle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String nom;
 
-    private double superficie;  // en hectares par ex.
+    @Column(nullable = false)
+    private String localisation;
 
-    // Relation vers l’utilisateur propriétaire de la parcelle
+    @Column(nullable = false)
+    private double surface;
+
+    @Column(nullable = false)
+    private String typeSol;
+
     @ManyToOne
-    @JoinColumn(name = "utilisateur_id")
+    @JoinColumn(name = "utilisateur_id", nullable = false)
     private Utilisateur utilisateur;
 
-    // Une parcelle peut avoir plusieurs cultures
-    @OneToMany(mappedBy = "parcelle", cascade = CascadeType.ALL)
-    private Set<Culture> cultures;
+    public Parcelle() {
+    }
 
-    // Une parcelle peut avoir plusieurs analyses de sol
-    @OneToMany(mappedBy = "parcelle", cascade = CascadeType.ALL)
-    private Set<AnalyseSol> analysesSol;
-
-    // Une parcelle peut avoir plusieurs interventions
-    @OneToMany(mappedBy = "parcelle", cascade = CascadeType.ALL)
-    private Set<Intervention> interventions;
+    public Parcelle(String nom, String localisation, double surface, String typeSol, Utilisateur utilisateur) {
+        this.nom = nom;
+        this.localisation = localisation;
+        this.surface = surface;
+        this.typeSol = typeSol;
+        this.utilisateur = utilisateur;
+    }
 
     // Getters et setters
-
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
+
     public String getNom() {
         return nom;
     }
+
     public void setNom(String nom) {
         this.nom = nom;
     }
-    public double getSuperficie() {
-        return superficie;
+
+    public String getLocalisation() {
+        return localisation;
     }
-    public void setSuperficie(double superficie) {
-        this.superficie = superficie;
+
+    public void setLocalisation(String localisation) {
+        this.localisation = localisation;
     }
+
+    public double getSurface() {
+        return surface;
+    }
+
+    public void setSurface(double surface) {
+        this.surface = surface;
+    }
+
+    public String getTypeSol() {
+        return typeSol;
+    }
+
+    public void setTypeSol(String typeSol) {
+        this.typeSol = typeSol;
+    }
+
     public Utilisateur getUtilisateur() {
         return utilisateur;
     }
+
     public void setUtilisateur(Utilisateur utilisateur) {
         this.utilisateur = utilisateur;
     }
-    public Set<Culture> getCultures() {
-        return cultures;
-    }
-    public void setCultures(Set<Culture> cultures) {
-        this.cultures = cultures;
-    }
-    public Set<AnalyseSol> getAnalysesSol() {
-        return analysesSol;
-    }
-    public void setAnalysesSol(Set<AnalyseSol> analysesSol) {
-        this.analysesSol = analysesSol;
-    }
-    public Set<Intervention> getInterventions() {
-        return interventions;
-    }
-    public void setInterventions(Set<Intervention> interventions) {
-        this.interventions = interventions;
+
+    @Override
+    public String toString() {
+        return "Parcelle{" +
+                "id=" + id +
+                ", nom='" + nom + '\'' +
+                ", localisation='" + localisation + '\'' +
+                ", surface=" + surface +
+                ", typeSol='" + typeSol + '\'' +
+                ", utilisateur=" + utilisateur.getUsername() +
+                '}';
     }
 }

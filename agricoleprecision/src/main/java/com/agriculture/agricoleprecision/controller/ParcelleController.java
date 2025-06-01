@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/parcelles")
@@ -24,9 +25,14 @@ public class ParcelleController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Parcelle> getParcelleById(@PathVariable Long id) {
-        return parcelleService.findById(id)
-                .map(parcelle -> ResponseEntity.ok().body(parcelle))
+        Optional<Parcelle> parcelle = parcelleService.findById(id);
+        return parcelle.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/utilisateur/{utilisateurId}")
+    public List<Parcelle> getParcellesByUtilisateur(@PathVariable Long utilisateurId) {
+        return parcelleService.findByUtilisateurId(utilisateurId);
     }
 
     @PostMapping
@@ -35,15 +41,16 @@ public class ParcelleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Parcelle> updateParcelle(@PathVariable Long id, @RequestBody Parcelle parcelle) {
-        return parcelleService.update(id, parcelle)
-                .map(updatedParcelle -> ResponseEntity.ok().body(updatedParcelle))
+    public ResponseEntity<Parcelle> updateParcelle(@PathVariable Long id, @RequestBody Parcelle parcelleDetails) {
+        Optional<Parcelle> updated = parcelleService.update(id, parcelleDetails);
+        return updated.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteParcelle(@PathVariable Long id) {
-        if (parcelleService.delete(id)) {
+        boolean deleted = parcelleService.delete(id);
+        if (deleted) {
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();

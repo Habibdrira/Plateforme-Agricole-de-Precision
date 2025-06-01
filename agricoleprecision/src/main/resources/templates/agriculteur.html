@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Tableau de bord Agriculteur</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; }
+        .container { width: 500px; margin: 50px auto; padding: 20px; background-color: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { color: #4CAF50; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Bienvenue, Agriculteur!</h2>
+    <p>Vous avez accès au tableau de bord agriculteur.</p>
+    <a th:href="@{/logout}">Déconnexion</a>
+</div>
+</body>
+</html>

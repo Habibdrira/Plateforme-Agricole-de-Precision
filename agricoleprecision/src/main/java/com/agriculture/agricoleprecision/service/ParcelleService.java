@@ -24,16 +24,20 @@ public class ParcelleService {
         return parcelleRepository.findById(id);
     }
 
+    public List<Parcelle> findByUtilisateurId(Long utilisateurId) {
+        return parcelleRepository.findByUtilisateurId(utilisateurId);
+    }
+
     public Parcelle save(Parcelle parcelle) {
         return parcelleRepository.save(parcelle);
     }
 
     public Optional<Parcelle> update(Long id, Parcelle parcelleDetails) {
         return parcelleRepository.findById(id).map(parcelle -> {
-            parcelle.setNom(parcelleDetails.getNom());
-            parcelle.setSuperficie(parcelleDetails.getSuperficie());
+            parcelle.setLocalisation(parcelleDetails.getLocalisation());
+            parcelle.setSurface(parcelleDetails.getSurface());
+            parcelle.setTypeSol(parcelleDetails.getTypeSol());
             parcelle.setUtilisateur(parcelleDetails.getUtilisateur());
-            // On ne met pas à jour les collections ici (cultures, analysesSol, interventions) directement
             return parcelleRepository.save(parcelle);
         });
     }

@@ -20,53 +20,30 @@ public class Utilisateur {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;  // ADMIN, AGRICULTEUR, etc.
+    private Role role;
 
     @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Parcelle> parcelles;
 
-    // Constructeur sans arguments requis par JPA
     public Utilisateur() {
     }
 
-    // Constructeur pratique (optionnel)
     public Utilisateur(String username, String password, Role role) {
         this.username = username;
         this.password = password;
         this.role = role;
     }
 
-    // Getters et setters
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public String getUsername() {
-        return username;
-    }
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    public String getPassword() {
-        return password;
-    }
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    public Role getRole() {
-        return role;
-    }
-    public void setRole(Role role) {
-        this.role = role;
-    }
-    public Set<Parcelle> getParcelles() {
-        return parcelles;
-    }
-    public void setParcelles(Set<Parcelle> parcelles) {
-        this.parcelles = parcelles;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
+    public Set<Parcelle> getParcelles() { return parcelles; }
+    public void setParcelles(Set<Parcelle> parcelles) { this.parcelles = parcelles; }
 
     @Override
     public String toString() {
