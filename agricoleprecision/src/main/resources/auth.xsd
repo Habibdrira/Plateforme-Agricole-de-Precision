@@ -1,4 +1,4 @@
-<!-- resources/auth.xsd -->
+
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            targetNamespace="http://agriculture.com/auth"
            xmlns:tns="http://agriculture.com/auth"
@@ -23,5 +23,4 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-
 </xs:schema>

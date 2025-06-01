@@ -7,13 +7,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.ws.config.annotation.EnableWs;
 import org.springframework.ws.config.annotation.WsConfigurerAdapter;
-import org.springframework.ws.server.endpoint.adapter.method.MethodReturnValueHandler;
 import org.springframework.ws.transport.http.MessageDispatcherServlet;
 import org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition;
 import org.springframework.xml.xsd.SimpleXsdSchema;
 import org.springframework.xml.xsd.XsdSchema;
-
-import java.util.List;
 
 @Configuration
 @EnableWs
@@ -40,10 +37,5 @@ public class SoapConfig extends WsConfigurerAdapter {
     @Bean
     public XsdSchema authSchema() {
         return new SimpleXsdSchema(new ClassPathResource("auth.xsd"));
-    }
-
-    @Override
-    public void addReturnValueHandlers(List<MethodReturnValueHandler> returnValueHandlers) {
-        // Empty implementation as no custom return value handlers are needed
     }
 }

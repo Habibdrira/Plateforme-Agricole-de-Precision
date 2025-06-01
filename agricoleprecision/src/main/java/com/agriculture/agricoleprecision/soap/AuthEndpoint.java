@@ -9,16 +9,15 @@ import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
-
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.*;
 
 @Endpoint
 public class AuthEndpoint {
+
     private static final String NAMESPACE_URI = "http://agriculture.com/auth";
     private static final Logger logger = LoggerFactory.getLogger(AuthEndpoint.class);
-    private static String lastConnectedUser = null;
-    private static String lastConnectedRole = null;
+    private static volatile String lastConnectedUser = null;
+    private static volatile String lastConnectedRole = null;
 
     @Autowired
     private UtilisateurRepository utilisateurRepository;
@@ -36,7 +35,7 @@ public class AuthEndpoint {
             response.setMessage("Authentification réussie");
             lastConnectedUser = request.getUsername();
             lastConnectedRole = utilisateur.getRole().name();
-            logger.info("SOAP Login Successful: Username={}, Role={}", request.getUsername(), utilisateur.getRole().name());
+            logger.info("SOAP Login Successful: Username={}, Role={}", request.getUsername(), utilisateur.getRole());
         } else {
             response.setSuccess(false);
             response.setMessage("Nom d'utilisateur ou mot de passe incorrect");

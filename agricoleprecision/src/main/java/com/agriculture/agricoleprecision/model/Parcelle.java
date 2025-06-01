@@ -1,6 +1,8 @@
 package com.agriculture.agricoleprecision.model;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "parcelle")
@@ -26,6 +28,9 @@ public class Parcelle {
     @JoinColumn(name = "utilisateur_id", nullable = false)
     private Utilisateur utilisateur;
 
+    @OneToMany(mappedBy = "parcelle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Culture> cultures = new ArrayList<>();
+
     public Parcelle() {
     }
 
@@ -49,4 +54,6 @@ public class Parcelle {
     public void setTypeSol(String typeSol) { this.typeSol = typeSol; }
     public Utilisateur getUtilisateur() { return utilisateur; }
     public void setUtilisateur(Utilisateur utilisateur) { this.utilisateur = utilisateur; }
+    public List<Culture> getCultures() { return cultures; }
+    public void setCultures(List<Culture> cultures) { this.cultures = cultures; }
 }

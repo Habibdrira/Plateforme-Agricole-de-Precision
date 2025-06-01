@@ -92,7 +92,7 @@ public class ParcelleController {
                                  HttpSession session) {
         Utilisateur user = (Utilisateur) session.getAttribute("user");
         if (user == null) return "redirect:/login";
-        if (user.getRole() == Role.AGRICULTEUR && !user.getId().equals(utilisateurId)) {
+        if (user.getRole() == Role.AGRICULTEUR && !parcelleService.findById(id).get().getUtilisateur().getId().equals(user.getId())) {
             return "redirect:/agriculteur/parcelles";
         }
         parcelleService.updateParcelle(id, nom, localisation, surface, typeSol, utilisateurId);
