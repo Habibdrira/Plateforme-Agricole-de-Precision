@@ -1,12 +1,8 @@
 package com.agriculture.agricoleprecision.controller;
 
-import com.agriculture.agricoleprecision.enums.Role;
 import com.agriculture.agricoleprecision.model.Parcelle;
-import com.agriculture.agricoleprecision.model.Utilisateur;
-import com.agriculture.agricoleprecision.service.ParcelleService;
-import jakarta.servlet.http.HttpSession;
+import com.agriculture.agricoleprecision.repository.ParcelleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,90 +12,36 @@ import java.util.List;
 public class ParcelleRestController {
 
     @Autowired
-    private ParcelleService parcelleService;
+    private ParcelleRepository parcelleRepository;
+
+    @PostMapping
+    public Parcelle createParcelle(@RequestBody Parcelle parcelle) {
+        return parcelleRepository.save(parcelle);
+    }
 
     @GetMapping
-    public ResponseEntity<List<Parcelle>> getAllParcelles(HttpSession session) {
-        Utilisateur user = (Utilisateur) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).build();
-        }
-        if (user.getRole() == Role.ADMIN) {
-            return ResponseEntity.ok(parcelleService.findAll());
-        } else if (user.getRole() == Role.AGRICULTEUR) {
-            return ResponseEntity.ok(parcelleService.findByUtilisateurId(user.getId()));
-        }
-        return ResponseEntity.status(403).build();
+    public List<Parcelle> getAllParcelles() {
+        return parcelleRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Parcelle> getParcelleById(@PathVariable Long id, HttpSession session) {
-        Utilisateur user = (Utilisateur) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).build();
-        }
-        Parcelle parcelle = parcelleService.findById(id).orElse(null);
-        if (parcelle == null) {
-            return ResponseEntity.notFound().build();
-        }
-        if (user.getRole() == Role.ADMIN || parcelle.getUtilisateur().getId().equals(user.getId())) {
-            return ResponseEntity.ok(parcelle);
-        }
-        return ResponseEntity.status(403).build();
-    }
-
-    @PostMapping
-    public ResponseEntity<Parcelle> createParcelle(@RequestParam String nom, @RequestParam String localisation,
-                                                   @RequestParam double surface, @RequestParam String typeSol,
-                                                   @RequestParam Long utilisateurId, HttpSession session) {
-        Utilisateur user = (Utilisateur) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).build();
-        }
-        if (user.getRole() == Role.AGRICULTEUR && !user.getId().equals(utilisateurId)) {
-            return ResponseEntity.status(403).build();
-        }
-        Parcelle parcelle = parcelleService.createParcelle(nom, localisation, surface, typeSol, utilisateurId);
-        return ResponseEntity.ok(parcelle);
+    public Parcelle getParcelleById(@PathVariable Long id) {
+        return parcelleRepository.findById(id).orElse(null);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Parcelle> updateParcelle(@PathVariable Long id, @RequestParam String nom,
-                                                   @RequestParam String localisation, @RequestParam double surface,
-                                                   @RequestParam String typeSol, @RequestParam Long utilisateurId,
-                                                   HttpSession session) {
-        Utilisateur user = (Utilisateur) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).build();
+    public Parcelle updateParcelle(@PathVariable Long id, @RequestBody Parcelle parcelle) {
+        Parcelle existing = parcelleRepository.findById(id).orElse(null);
+        if (existing != null) {
+            existing.setNom(parcelle.getNom());
+            existing.setUtilisateur(parcelle.getUtilisateur());
+            return parcelleRepository.save(existing);
         }
-        Parcelle parcelle = parcelleService.findById(id).orElse(null);
-        if (parcelle == null) {
-            return ResponseEntity.notFound().build();
-        }
-        if (user.getRole() == Role.AGRICULTEUR && !parcelle.getUtilisateur().getId().equals(user.getId())) {
-            return ResponseEntity.status(403).build();
-        }
-        Parcelle updated = parcelleService.updateParcelle(id, nom, localisation, surface, typeSol, utilisateurId);
-        if (updated != null) {
-            return ResponseEntity.ok(updated);
-        }
-        return ResponseEntity.notFound().build();
+        return null;
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteParcelle(@PathVariable Long id, HttpSession session) {
-        Utilisateur user = (Utilisateur) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).build();
-        }
-        Parcelle parcelle = parcelleService.findById(id).orElse(null);
-        if (parcelle == null) {
-            return ResponseEntity.notFound().build();
-        }
-        if (user.getRole() == Role.AGRICULTEUR && !parcelle.getUtilisateur().getId().equals(user.getId())) {
-            return ResponseEntity.status(403).build();
-        }
-        parcelleService.deleteById(id);
-        return ResponseEntity.ok().build();
+    public void deleteParcelle(@PathVariable Long id) {
+        parcelleRepository.deleteById(id);
     }
 }

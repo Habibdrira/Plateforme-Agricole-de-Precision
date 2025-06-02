@@ -1,0 +1,10 @@
+type Query {
+    utilisateurs: [Utilisateur!]!
+}
+
+type Utilisateur {
+    id: ID!
+    username: String!
+    password: String!
+    role: String!
+}
